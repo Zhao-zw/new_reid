@@ -1,3 +1,5 @@
+the data should put in new_reid/tri_loss/dataset
+
 PCB train :python script/experiment/train_PCB.py \
 -d '(0,1)' \
 --only_test false \
