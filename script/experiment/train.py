@@ -450,8 +450,6 @@ def main():
       step_st = time.time()
 
       ims, im_names, labels, pose,pose_target,mirrored, epoch_done = train_set.next_batch()
-      pdb.set_trace()
-
 
       ims_var = Variable(TVT(torch.from_numpy(ims).float()))
       labels_t = TVT(torch.from_numpy(labels).long())
