@@ -1,43 +1,52 @@
-# new_reid
-#cuda9.0 python3.5
-#pytorch
-FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+PCB train :python script/experiment/train_PCB.py \
+-d '(0,1)' \
+--only_test false \
+--dataset market1501 \
+--last_conv_stride 1 \
+--normalize_feature false \
+--trainset_part train \
+--exp_dir Result/PCB \
+--steps_per_log 10 \
+--epochs_per_val 50
 
-ADD sources.list /etc/apt/
+PCB test :python script/experiment/train_PCB.py \
+-d '(0,)' \
+--only_test true \
+--dataset market1501 \
+--last_conv_stride 1 \
+--normalize_feature false \
+--exp_dir Result/PCB \
+--model_weight_file new_reid/Result/PCB/ckpt.pth
 
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        wget \
-        curl \
-        git \
-        libopencv-dev\
-        openssh-server && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+triploss baseline :python script/experiment/train.py \
+-d '(0,1)' \
+--only_test false \
+--dataset market1501 \
+--last_conv_stride 1 \
+--normalize_feature false \
+--trainset_part train \
+--exp_dir Result/baseline \
+--steps_per_log 10 \
+--epochs_per_val 50
 
-RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh && \
-    /bin/bash Miniconda3-4.5.4-Linux-x86_64.sh -b -p /opt/conda && \
-    rm Miniconda3-4.5.4-Linux-x86_64.sh 
+triploss baseline test:python script/experiment/train.py \
+-d '(0,)' \
+--only_test true \
+--dataset market1501 \
+--last_conv_stride 1 \
+--normalize_feature false \
+--exp_dir new_train \
+--model_weight_file new_reid/Result/baseline/ckpt.pth
 
-ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:/usr/local/nvidia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tensorboardX
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch==1.1.0
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torchvision==0.3.0
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple dominate
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple scipy==1.1.0
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pillow
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple opencv-python==4.1.0.25
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple scikit-learn==0.18.1
-
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple visdom==0.1.8.9 
-
-WORKDIR /root
+triploss with tripgan train :python script/experiment/train_TG_R.py \
+-d '(0,1)' \
+--only_test false \
+--resume true \
+--dataset market1501 \
+--last_conv_stride 1 \
+--normalize_feature false \
+--trainset_part train \
+--exp_dir Result/tlg/R \
+--steps_per_log 1 \
+--epochs_per_val 50 \
+--use_FDGAN_module true \
